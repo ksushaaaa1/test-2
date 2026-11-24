@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Тест 2 — Продвинутый: Present / Past / Future</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    min-height: 100vh;
+    padding: 20px;
+    color: #333;
+  }
+  .container { max-width: 750px; margin: 0 auto; }
+  header { text-align: center; color: #fff; margin-bottom: 25px; }
+  header h1 { font-size: 1.9em; margin-bottom: 8px; }
+  header p { opacity: 0.95; }
+  .card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  }
+  .question {
+    margin-bottom: 22px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid #eee;
+  }
+  .question:last-of-type { border-bottom: none; }
+  .q-text { font-weight: 600; margin-bottom: 12px; font-size: 1.05em; }
+  .q-num { color: #11998e; }
+  .options { display: flex; flex-direction: column; gap: 8px; }
+  .option {
+    display: flex; align-items: center;
+    padding: 10px 14px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.2s;
+    user-select: none;
+  }
+  .option:hover { border-color: #11998e; background: #eefbf5; }
+  .option input { margin-right: 10px; accent-color: #11998e; }
+  .option.correct { border-color: #2ecc71 !important; background: #eafaf1 !important; }
+  .option.wrong { border-color: #e74c3c !important; background: #fdeaea !important; }
+  .option.disabled { cursor: default; }
+  .explanation {
+    margin-top: 10px;
+    padding: 10px 14px;
+    background: #eefbf5;
+    border-left: 4px solid #11998e;
+    border-radius: 6px;
+    font-size: 0.92em;
+    color: #444;
+    display: none;
+  }
+  .explanation.show { display: block; }
+  .btn {
+    display: block;
+    width: 100%;
+    padding: 15px;
+    margin-top: 20px;
+    background: linear-gradient(135deg, #11998e, #38ef7d);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1em;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(17,153,142,0.4); }
+  .result {
+    margin-top: 20px;
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 1.2em;
+    font-weight: 700;
+    display: none;
+  }
+  .result.show { display: block; }
+  .result.excellent { background: #eafaf1; color: #27ae60; }
+  .result.good { background: #fff8e1; color: #f39c12; }
+  .result.bad { background: #fdeaea; color: #e74c3c; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>🚀 Тест 2 — Продвинутый</h1>
+    <p>Perfect · Continuous · Future forms</p>
+  </header>
+
+  <div class="card">
+    <div id="questions"></div>
+    <button class="btn" id="checkBtn">Проверить ответы</button>
+    <div class="result" id="result"></div>
+  </div>
+</div>
+
+<script>
+const questions = [
+  { q: "When I arrived, she ___ dinner.", opts: ["cooks", "was cooking", "will cook"], correct: 1, exp: "Past Continuous — действие в процессе в прошлом." },
+  { q: "By the time you come, I ___ the report.", opts: ["finish", "finished", "will have finished"], correct: 2, exp: "Future Perfect — действие завершится к моменту в будущем." },
+  { q: "He ___ in London for five years before he moved to Paris.", opts: ["lives", "had lived", "will live"], correct: 1, exp: "Past Perfect — действие до другого прошлого действия." },
+  { q: "Look at those clouds! It ___.", opts: ["rains", "is going to rain", "rained"], correct: 1, exp: "be going to — предсказание по видимым признакам." },
+  { q: "She ___ her homework by 6 pm yesterday.", opts: ["had done", "does", "will do"], correct: 0, exp: "Past Perfect — завершено к моменту в прошлом." },
+  { q: "This time next week I ___ on the beach.", opts: ["lie", "will be lying", "lay"], correct: 1, exp: "Future Continuous — в конкретный момент в будущем." },
+  { q: "He ___ three cups of coffee today.", opts: ["has drunk", "drank", "will drink"], correct: 0, exp: "Present Perfect — результат к настоящему (today)." },
+  { q: "They ___ when the phone rang.", opts: ["slept", "were sleeping", "will sleep"], correct: 1, exp: "Past Continuous — фоновое действие в прошлом." },
+  { q: "I ___ here since 2010.", opts: ["work", "worked", "have worked"], correct: 2, exp: "Present Perfect — действие длится с прошлого момента (since)." },
+  { q: "By next month, she ___ her driving test.", opts: ["passes", "will have passed", "passed"], correct: 1, exp: "Future Perfect — завершится к моменту в будущем." }
+];
+
+const container = document.getElementById('questions');
+
+questions.forEach((item, i) => {
+  const div = document.createElement('div');
+  div.className = 'question';
+  div.innerHTML = `
+    <div class="q-text"><span class="q-num">${i + 1}.</span> ${item.q}</div>
+    <div class="options">
+      ${item.opts.map((opt, j) => `
+        <label class="option" id="opt-${i}-${j}">
+          <input type="radio" name="q${i}" value="${j}">
+          ${opt}
+        </label>
+      `).join('')}
+    </div>
+    <div class="explanation" id="exp-${i}">${item.exp}</div>
+  `;
+  container.appendChild(div);
+});
+
+document.getElementById('checkBtn').addEventListener('click', function () {
+  let score = 0;
+
+  questions.forEach((item, i) => {
+    document.getElementById(`exp-${i}`).classList.add('show');
+    const chosen = document.querySelector(`input[name="q${i}"]:checked`);
+    const selected = chosen ? parseInt(chosen.value) : -1;
+
+    item.opts.forEach((_, j) => {
+      const label = document.getElementById(`opt-${i}-${j}`);
+      label.querySelector('input').disabled = true;
+      label.classList.add('disabled');
+      if (j === item.correct) label.classList.add('correct');
+      else if (j === selected) label.classList.add('wrong');
+    });
+
+    if (selected === item.correct) score++;
+  });
+
+  const result = document.getElementById('result');
+  result.classList.add('show');
+
+  if (score === questions.length) {
+    result.className = 'result show excellent';
+    result.textContent = `🏆 Правильно: ${score} из ${questions.length}. Идеально!`;
+  } else if (score >= 7) {
+    result.className = 'result show good';
+    result.textContent = `👍 Правильно: ${score} из ${questions.length}. Хороший результат!`;
+  } else {
+    result.className = 'result show bad';
+    result.textContent = `😔 Правильно: ${score} из ${questions.length}. Стоит повторить Perfect времена.`;
+  }
+
+  this.textContent = 'Пройти заново';
+  this.onclick = () => location.reload();
+});
+</script>
+</body>
+</html>
